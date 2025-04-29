@@ -1,0 +1,12 @@
+import requests
+
+API_KEY = "YOUR_CRYPTOPANIC_API_KEY"
+
+def get_news(symbol):
+    try:
+        url = f"https://cryptopanic.com/api/v1/posts/?auth_token={API_KEY}&currencies={symbol.lower()}&public=true"
+        response = requests.get(url)
+        posts = response.json().get('results', [])[:5]
+        return [f"- {p['title']}" for p in posts]
+    except Exception as e:
+        return [f"Помилка отримання новин: {e}"]
