@@ -1,0 +1,13 @@
+from .coingecko import get_price
+
+def get_signal(symbol):
+    try:
+        price = get_price(symbol)
+        if isinstance(price, str): return price
+        # Умова для сигналу (штучна логіка)
+        if price > 30000:
+            return f"{symbol.upper()} виглядає перекупленим. Рекомендовано: SELL"
+        else:
+            return f"{symbol.upper()} потенційно недооцінений. Рекомендовано: BUY"
+    except Exception as e:
+        return f"Помилка генерації сигналу: {e}"
