@@ -1,0 +1,19 @@
+import requests
+
+def get_price(symbol):
+    try:
+        url = f"https://api.coingecko.com/api/v3/simple/price?ids={symbol.lower()}&vs_currencies=usd"
+        response = requests.get(url)
+        data = response.json()
+        return data[symbol.lower()]['usd']
+    except Exception as e:
+        return f"Помилка отримання ціни: {e}"
+
+def get_top_coins(limit=15):
+    try:
+        url = f"https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page={limit}&page=1"
+        response = requests.get(url)
+        coins = response.json()
+        return [f"{coin['symbol'].upper()}: ${coin['current_price']}" for coin in coins]
+    except Exception as e:
+        return [f"Помилка отримання списку монет: {e}"]
