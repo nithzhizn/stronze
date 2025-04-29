@@ -1,0 +1,12 @@
+import requests
+
+def get_long_short_ratio(symbol='BTCUSDT'):
+    try:
+        url = f"https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol={symbol}&period=1h&limit=1"
+        response = requests.get(url)
+        data = response.json()[0]
+        long_ratio = float(data['longAccount'])
+        short_ratio = float(data['shortAccount'])
+        return f"Long: {long_ratio*100:.1f}%, Short: {short_ratio*100:.1f}%"
+    except Exception as e:
+        return f"Помилка отримання співвідношення: {e}"
