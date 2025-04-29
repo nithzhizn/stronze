@@ -1,1 +1,62 @@
-pip install numpy pandas tensorflow scikit-learn requests
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+from services import coingecko, news, signals, binance
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Привіт! Я криптобот. Спробуй /price BTC, /signal BTC, /top або /longshort BTCUSDT")
+
+async def price(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        symbol = context.args[0]
+        price = coingecko.get_price(symbol)
+        await update.message.reply_text(f"Ціна {symbol.upper()}: {price}$")
+    else:
+        await update.message.reply_text("Використання: /price BTC")
+
+async def news_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        symbol = context.args[0]
+        headlines = news.get_news(symbol)
+        await update.message.reply_text("\n".join(headlines))
+    else:
+        await update.message.reply_text("Використання: /news BTC")
+
+async def signal(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        symbol = context.args[0]
+        result = signals.get_signal(symbol)
+        await update.message.reply_text(result)
+    else:
+        await update.message.reply_text("Використання: /signal BTC")
+
+async def top(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    coins = coingecko.get_top_coins()
+    await update.message.reply_text("\n".join(coins))
+
+async def longshort(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        symbol = context.args[0]
+        result = binance.get_long_short_ratio(symbol)
+        await update.message.reply_text(result)
+    else:
+        await update.message.reply_text("Використання: /longshort BTCUSDT")
+
+app = ApplicationBuilder().token("YOUR_TELEGRAM_BOT_TOKEN").build()
+app.add_handler(CommandHandler("start", start))
+app.add_handler(CommandHandler("price", price))
+app.add_handler(CommandHandler("news", news_cmd))
+app.add_handler(CommandHandler("signal", signal))
+app.add_handler(CommandHandler("top", top))
+app.add_handler(CommandHandler("longshort", longshort))
+app.add_handler(CommandHandler("predict", predict))
+app.run_polling()
+from ml import lstm_predictor as predictor
+
+
+async def predict(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.args:
+        symbol = context.args[0].lower()
+        result = predictor.predict_price(symbol)
+        await update.message.reply_text(result)
+    else:
+        await update.message.reply_text("Використання: /predict BTC")
